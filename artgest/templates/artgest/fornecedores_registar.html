@@ -1,0 +1,70 @@
+{% extends 'artgest/base.html' %}
+
+{% load static %}
+
+{% block scripts %}
+    <script src="{% static 'artgest/js/fornecedores_registar.js' %}"></script>
+{% endblock %}
+
+{% block message %}
+    {#  mostra notificação se houver mensagens retornadas da view após submissão do form #}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show modal-fade" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Sucesso: </strong> {{ message }}
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block main %}
+    <h1>{{ titulo }}</h1>
+    <hr>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="clss-form-registar-mp">
+            <p class="clss-obrigatorio">{{ fornecedores_form.nipc.label }}<span>&#42;</span>{{ fornecedores_form.nipc }}</p>
+
+            <p class="clss-obrigatorio">{{ fornecedores_form.nome.label }}<span>&#42;</span>{{ fornecedores_form.nome }}</p>
+
+            <p class="clss-obrigatorio">{{ fornecedores_form.email.label }}<span>&#42;</span>{{ fornecedores_form.email }}</p>
+
+            <p class="clss-obrigatorio">{{ fornecedores_form.morada.label }}<span>&#42;</span>{{ fornecedores_form.morada }}</p>
+
+            <p class="clss-obrigatorio">{{ fornecedores_form.n_porta.label }}<span>&#42;</span>{{ fornecedores_form.n_porta }}</p>
+
+            <p class="clss-obrigatorio">{{ fornecedores_form.cod_postal.label }}<span>&#42;</span>{{ fornecedores_form.cod_postal }}</p>
+
+            <p class="clss-obrigatorio">{{ fornecedores_form.localidade.label }}<span>&#42;</span>{{ fornecedores_form.localidade }}</p>
+
+            <p class="clss-obrigatorio">{{ fornecedores_form.concelho.label }}<span>&#42;</span>{{ fornecedores_form.concelho }}</p>
+
+            <p class="clss-obrigatorio">{{ fornecedores_form.telefone.label }}<span>&#42;</span>{{ fornecedores_form.telefone }}</p>
+            <br>
+            <span class="clss-obrigatorio-msg">&#42; Campo de preenchimento obrigatório</span></p>
+
+        </div>
+
+        <br>
+
+        <button type="button" id="bt-registar" class="btn btn-primary float-right mr-5">Registar</button>
+        <a href="{% url 'artgest:fornecedores_registar' %}" role="button" class="btn btn-secondary float-right mr-1">Limpar</a>
+
+        <div id="modal-confirmacao" class="clss-modal-fundo">
+            <div class="clss-modal-confirmacao modal-fade">
+                <div class="clss-modal-confirmacao-conteudo">
+                    <h4><strong>Confirmar?</strong></h4>
+                    <hr>
+                    <p>Tem a certeza que pretende registar o fornecedor?</p>
+                    <hr>
+                    <div class="clss-modal-botoes">
+                        <button type="button" id="bt-cancelar" class="mb-5 btn btn-secondary btn-sm">Cancelar</button>
+                        <button type="submit" class="mb-5 btn btn-primary btn-sm">Sim, registar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+{% endblock %}

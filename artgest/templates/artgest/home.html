@@ -1,0 +1,126 @@
+{% extends 'artgest/base.html' %}
+
+{% load static %}
+
+{% block scripts %}
+    <script src="{% static 'artgest/js/home.js' %}"></script>
+{% endblock %}
+
+{% block message %}
+    {#  mostra notificação se houver mensagens retornadas da view após submissão do form #}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show modal-fade" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Sucesso: </strong> {{ message }}
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% comment %}{% block main %}
+    <section class="home">
+        {% load static %}
+        <img src="{% static 'artgest/pictures/logo.png' %}" alt="Artgest logotipo" class="logotipo">
+        <h1>Bem vindo ao artgest!</h1>
+        <h4>Faça a gestão do seu negócio artesanal de forma rápida e simples.</h4>
+
+        <a role="button" href="{% url 'artgest:login' %}" class="btn btn-nocolor line">Registar</a>
+        <a role="button" href="{% url 'artgest:login' %}" class="btn btn-nocolor line">Login</a>
+    </section>
+{% endblock %}{% endcomment %}
+
+
+
+
+
+
+{% block main %}
+    <section class="home">
+        {% load static %}
+        <img src="{% static 'artgest/images/logo.png' %}" alt="Artgest logotipo" class="logotipo">
+        <h1>Bem vindo ao artgest!</h1>
+        <h4>Faça a gestão do seu negócio artesanal de forma rápida e simples.</h4>
+
+
+     <!-- Button trigger modal Registar -->
+        <div>
+            <p>
+                <button type="button" id="bt-registar" class="btn btn-primary line">
+                Registar
+                </button>
+            </p>
+        </div>
+
+
+        <!-- Button trigger modal Login -->
+        <div>
+            <p>
+                <button type="button" class="btn btn-primary line" data-toggle="modal" data-target="#SignInModal">
+                Login
+                </button>
+            </p>
+        </div>
+
+
+
+
+        <!-- Modal Registar -->
+
+        <div id="modal-registar" class="clss-modal-fundo">
+            <div class="clss-modal-registar modal-fade">
+                <div class="clss-modal-registar-conteudo">
+                    <h4><strong>Registar Utilizador</strong></h4>
+                    <hr>
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <input type="hidden" name="codigo" value=1>
+                        {{ registar_form.as_p }}
+                        <div class="clss-modal-botoes">
+                            <button type="button" id="bt-cancelar-registar" class="mb-5 btn btn-secondary btn-sm">Cancelar</button>
+                            <button type="submit" class="mb-5 btn btn-primary btn-sm">Inserir</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+    <!-- Modal Login -->
+
+        <div class="modal fade " id="SignInModal" tabindex="-1" aria-labelledby="SignInModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="SignInModalLabel">Login</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{% url 'artgest:login' %}" method="POST">
+                            {% csrf_token %}
+
+                            <input type="text" name="username" placeholder="username"><br>
+                            <input type="password" name="password" placeholder="password"><br><br><br>
+                            <input type="submit" class="btn btn-primary" value="Login">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+    </section>
+{% endblock %}
+
+

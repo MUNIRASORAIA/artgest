@@ -1,0 +1,58 @@
+{% extends 'artgest/base.html' %}
+
+{% load static %}
+
+{% block message %}
+    {#  mostra notificação se houver mensagens retornadas da view após submissão do form #}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show modal-fade" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>{{ message.extra_tags }}: </strong> {{ message }}
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block main %}
+    <h1>{{ titulo }}</h1>
+    <br>
+    <h6>Quantidades vendidas nos últimos 30 dias</h6>
+    <hr>
+    <div>
+        {% for venda_quantidade in vendas_quantidades %}
+        <div class="clss-relatorio-mes">
+            Nome do Produto: {{ venda_quantidade.NOME }} | Quantidade Vendida: {{ venda_quantidade.QUANTIDADE }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <br><br>
+
+    <h6>Produtos vendidos nos últimos 30 dias</h6>
+    <hr>
+    <div>
+        {% for venda_mes in vendas_mes %}
+        <div class="clss-relatorio-mes">
+            <span>Nome do Produto: {{ venda_mes.NOME }}</span>
+            <span>Preço: {{ venda_mes.PRECO }}</span>
+            <span>Preço Final: {{ venda_mes.PRECO_FINAL }}</span>
+            <span>Ganho Perda: {{ venda_mes.GANHO_PERDA }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <br><br>
+
+    <h6>As 5 Matérias-Primas mais usadas</h6>
+    <hr>
+    <div>
+        {% for mp_mais_usada in mp_mais_usadas %}
+        <div class="clss-relatorio-mes">
+            <span>Nome da Matéria Prima: {{ mp_mais_usada.NOME }}</span>
+            <span>Cor: <span style="background-color:{{ mp_mais_usada.COR }}; color: {{ mp_mais_usada.COR }}; padding: 1px">{{ mp_mais_usada.COR }}</span>
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

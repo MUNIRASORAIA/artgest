@@ -1,0 +1,66 @@
+{% extends 'artgest/base.html' %}
+
+{% load static %}
+
+{% block scripts %}
+    <script src="{% static 'artgest/js/materiasprimas_listar.js' %}"></script>
+{% endblock %}
+
+
+{% block message %}
+    {#  mostra notificação se houver mensagens retornadas da view após submissão do form #}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show modal-fade" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Sucesso: </strong> {{ message }}
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block main %}
+    <h1>{{ titulo }}</h1>
+    <hr>
+    <div id="tabela-materias-primas">
+        <table>
+            <thead>
+                {% for coluna in colunas %}
+                    <th>{{ coluna }}</th>
+                {% endfor %}
+            </thead>
+            <tbody>
+                {% for mp in materias_primas  %}
+                    <tr>
+                        <td>{{ mp.codigo }}</td>
+                        <td>{{ mp.nome }}</td>
+                        <td>{{ mp.quantidade }}</td>
+                        <td>{{ mp.unid_medida_codigo }}</td>
+                        <td>{{ mp.especificacoes }}</td>
+                        <td>{{ mp.preco }}</td>
+                        <td><span style="background-color: {{ mp.cor }}; color: {{ mp.cor }}">###</span></td>
+                        <td>{{ mp.alerta_qt_minima|floatformat:0 }}</td>
+                        <td><a href="{% url 'artgest:materiasprimas_editar' mp.codigo %}" class="btn btn-primary btn-sm" >Editar</a></td>
+                        <td><button type="button" onclick='eliminar_registo("{% url 'artgest:materiasprimas_eliminar' mp.codigo %}")' class="btn btn-danger btn-sm float-right mr-1">Eliminar</button></td>
+                    </tr>
+                    <div id="modal-confirmacao" class="clss-modal-fundo">
+                        <div class="clss-modal-confirmacao modal-fade">
+                            <div class="clss-modal-confirmacao-conteudo">
+                                <h4><strong>Confirmar?</strong></h4>
+                                <hr>
+                                <p>Tem a certeza que pretender eliminar?</p>
+                                <hr>
+                                <div class="clss-modal-botoes">
+                                    <button type="button" id="bt-cancelar" class="mb-5 btn btn-secondary btn-sm">Cancelar</button>
+                                    <a id="bt-eliminar" href="#" role="button" class="mb-5 btn btn-danger btn-sm">Sim, eliminar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+{% endblock %}

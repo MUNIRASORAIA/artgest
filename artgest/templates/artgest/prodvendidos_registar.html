@@ -1,0 +1,63 @@
+{% extends 'artgest/base.html' %}
+
+{% load static %}
+
+{% block scripts %}
+    <script src="{% static 'artgest/js/prodvendidos_registar.js' %}"></script>
+{% endblock %}
+
+{% block message %}
+    {#  mostra notificação se houver mensagens retornadas da view após submissão do form #}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show modal-fade" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Sucesso: </strong> {{ message }}
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block main %}
+    <h1>{{ titulo }}</h1>
+    <hr>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="clss-form-registar-mp">
+            <p class="clss-obrigatorio">{{ pv_form.produto_stock_tipo_prod_codigo.label }}<span class="clss-obrigatorio">&#42;</span>{{ pv_form.produto_stock_tipo_prod_codigo }}</p>
+
+            <div class="clss-obrigatorio">{{ pv_form.data.label }}<span>&#42;</span></div>
+            <p>{{ pv_form.data }}</p>
+
+            <p class="clss-obrigatorio">{{ pv_form.local.label }}<span>&#42;</span>{{ pv_form.local }}</p>
+
+            <div class="clss-obrigatorio">{{ pv_form.preco_final.label }}<span>&#42;</span></div>
+            <p>{{ pv_form.preco_final }}</p>
+
+            <br>
+            <span class="clss-obrigatorio-msg">&#42; Campo de preenchimento obrigatório</span></p>
+            <input type="hidden" name="codigo_venda" value=1>
+        </div>
+
+        <br>
+
+        <button type="button" id="bt-registar" class="btn btn-primary float-right mr-5">Registar</button>
+        <a href="{% url 'artgest:prodvendidos_registar' %}" role="button" class="btn btn-secondary float-right mr-1">Limpar</a>
+
+        <div id="modal-confirmacao" class="clss-modal-fundo">
+            <div class="clss-modal-confirmacao modal-fade">
+                <div class="clss-modal-confirmacao-conteudo">
+                    <h4><strong>Confirmar?</strong></h4>
+                    <hr>
+                    <p>Tem a certeza que pretende registar a venda do produto?</p>
+                    <hr>
+                    <div class="clss-modal-botoes">
+                        <button type="button" id="bt-cancelar" class="mb-5 btn btn-secondary btn-sm">Cancelar</button>
+                        <button type="submit" class="mb-5 btn btn-primary btn-sm">Sim, registar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+{% endblock %}

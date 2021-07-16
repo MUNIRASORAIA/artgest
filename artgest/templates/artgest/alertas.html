@@ -1,0 +1,28 @@
+{% extends 'artgest/base.html' %}
+
+{% load static %}
+
+{% block message %}
+    {#  mostra notificação se houver mensagens retornadas da view após submissão do form #}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show modal-fade" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>{{ message.extra_tags }}: </strong> {{ message }}
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block main %}
+    <h1>{{ titulo }}</h1>
+    <hr>
+    <div>
+        {% for alerta in alertas %}
+        <div class="clss-alerta">
+            {{ alerta }}
+            <a href="{% url 'artgest:limpa_alerta' alerta.codigo %}"><i class="fa fa-trash fa-lg limpa-alerta" aria-hidden="true"></i></a>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

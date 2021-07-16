@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{% static 'artgest/css/base.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'artgest/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,300italic' rel='stylesheet' type='text/css'>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'artgest/images/favicon.ico' %}" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+
+
+    <title>Artgest By MUSO®</title>
+
+    <script src="{% static 'artgest/js/base.js' %}"></script>
+    {% block scripts %}
+    {% endblock %}
+
+</head>
+<body>
+    <header class="jumbot ron tex t-center">
+        {% if titulo == 'Home' or titulo == 'Sobre Nós' or titulo == 'Informações' %}
+            <nav class="nav-site">
+                <div>
+                    <a href="{% url 'artgest:home' %}">Home</a>
+                    <a href="{% url 'artgest:sobre' %}">Sobre Nós</a>
+                    <a href="{% url 'artgest:info' %}">Informações</a>
+                </div>
+
+
+            </nav>
+        {% else %}
+            <nav class="nav-user">
+                <div class="top-logotipo">
+                    <img src="{% static 'artgest/images/top-logo.png' %}" alt="Artgest top logotipo">
+                </div>
+                <div class="top-menu-user">
+                    <a href="{% url 'artgest:userpage' %}"><i class="material-icons">home</i> Home</a>
+                    <a href="{% url 'artgest:relatorios' %}"><i class="medium material-icons">insert_chart</i> Relatórios</a>
+                    <a href="{% url 'artgest:alertas' %}"><i class="material-icons">notifications</i> Alertas</a>
+                    <a href="{% url 'artgest:perfil_visualizar' artesao_codigo %}"><i class="material-icons">person</i> Perfil</a>
+                </div>
+                <div class="exit-button-user">
+                    <a href="{% url 'artgest:logout' %}">Sair</a>
+                </div>
+            </nav>
+        {% endif %}
+    </header>
+
+    <main>
+        <div {% if titulo != 'Home' and titulo != 'Sobre Nós' and titulo != 'Informações' %} class="row" {% endif %}>
+            {% if titulo != 'Home' and titulo != 'Sobre Nós' and titulo != 'Informações' %}
+                <div class="col-2 menu">
+                    <ul class="side-menu">
+                        <li>
+                            <a id="bt-produtos" href="#">Produtos</a>
+                            <ul class="side-menu-inner">
+                                <li id="bt-produtos-registar"><a href="{% url 'artgest:produtos_registar' %}">Registar</a></li>
+                                <li id="bt-produtos-listar"><a href="{% url 'artgest:produtos_listar' %}">Listar</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a id="bt-materiasprimas" href="#">Matérias Primas</a>
+                            <ul class="side-menu-inner">
+                                <li id="bt-materiasprimas-registar"><a href="{% url 'artgest:materiasprimas_registar' %}">Registar</a></li>
+                                <li id="bt-materiasprimas-listar"><a href="{% url 'artgest:materiasprimas_listar' %}">Listar</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a id="bt-gastos" href="#">Gastos</a>
+                            <ul class="side-menu-inner">
+                                <li id="bt-gastos-registar"><a href="{% url 'artgest:gastos_registar' %}">Registar</a></li>
+                                <li id="bt-gastos-listar"><a href="{% url 'artgest:gastos_listar' %}">Listar</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a id="bt-fornecedores" href="#">Fornecedores</a>
+                            <ul class="side-menu-inner">
+                                <li id="bt-fornecedores-registar"><a href="{% url 'artgest:fornecedores_registar' %}">Registar</a></li>
+                                <li id="bt-fornecedores-listar"><a href="{% url 'artgest:fornecedores_listar' %}">Listar</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a id="bt-instrucoes" href="#">Instruções</a>
+                            <ul class="side-menu-inner">
+                                <li id="bt-instrucoes-registar"><a href="{% url 'artgest:instrucoes_registar' %}">Registar</a></li>
+                                <li id="bt-instrucoes-listar"><a href="{% url 'artgest:instrucoes_listar' %}">Listar</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a id="bt-prodvendidos" href="#">Produtos Vendidos</a>
+                            <ul class="side-menu-inner">
+                                <li id="bt-prodvendidos-registar"><a href="{% url 'artgest:prodvendidos_registar' %}">Registar</a></li>
+                                <li id="bt-prodvendidos-listar"><a href="{% url 'artgest:prodvendidos_listar' %}">Listar</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+
+
+            <div {% if titulo != 'Home' and titulo != 'Sobre Nós' and titulo != 'Informações' %} class="col-8" {% endif %}>
+                {% block message %}
+                {% endblock %}
+                {% block main %}
+                {% endblock main %}
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Copyright &copy; 2021 ArtGest by MUSO. All rights reserved.</p>
+    </footer>
+
+
+
+
+        <!-- jQuery, Tether, Bootstrap JS. -->
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="{% static 'artgest/js/bootstrap.min.js' %}"></script>
+</body>
+</html>
+
+

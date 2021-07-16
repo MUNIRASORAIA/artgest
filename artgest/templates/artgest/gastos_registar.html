@@ -1,0 +1,60 @@
+{% extends 'artgest/base.html' %}
+
+{% load static %}
+
+{% block scripts %}
+    <script src="{% static 'artgest/js/gastos_registar.js' %}"></script>
+{% endblock %}
+
+{% block message %}
+    {#  mostra notificação se houver mensagens retornadas da view após submissão do form #}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show modal-fade" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Sucesso: </strong> {{ message }}
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block main %}
+    <h1>{{ titulo }}</h1>
+    <hr>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="clss-form-registar-mp">
+            <p class="clss-obrigatorio">{{ gastos_form.nome.label }}<span>&#42;</span>{{ gastos_form.nome }}</p>
+
+            <div class="clss-obrigatorio">{{ gastos_form.valor.label }}<span>&#42;</span></div>
+            <p>{{ gastos_form.valor }}</p>
+
+            <br>
+            <span class="clss-obrigatorio-msg">&#42; Campo de preenchimento obrigatório</span></p>
+
+            <input type="hidden" name="codigo" value="1">
+            <input type="hidden" name="artesao_codigo" value="{{ user_codigo }}">
+        </div>
+
+        <br>
+
+        <button type="button" id="bt-registar" class="btn btn-primary float-right mr-5">Registar</button>
+        <a href="{% url 'artgest:gastos_registar' %}" role="button" class="btn btn-secondary float-right mr-1">Limpar</a>
+
+        <div id="modal-confirmacao" class="clss-modal-fundo">
+            <div class="clss-modal-confirmacao modal-fade">
+                <div class="clss-modal-confirmacao-conteudo">
+                    <h4><strong>Confirmar?</strong></h4>
+                    <hr>
+                    <p>Tem a certeza que pretende registar o gasto?</p>
+                    <hr>
+                    <div class="clss-modal-botoes">
+                        <button type="button" id="bt-cancelar" class="mb-5 btn btn-secondary btn-sm">Cancelar</button>
+                        <button type="submit" class="mb-5 btn btn-primary btn-sm">Sim, registar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+{% endblock %}
