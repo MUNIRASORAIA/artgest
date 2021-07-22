@@ -1,12 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const modal_confirmacao = document.querySelector('#modal-confirmacao');
-    const guardar = document.querySelector('#bt-guardar');
     const cancelar = document.querySelector('#bt-cancelar');
-
-    // abrir o modal de confirmação ao clicar em registar
-    guardar.onclick = function () {
-        modal_confirmacao.style.display = "block";
-    }
 
     // fechar o modal ao clicar no botão cancelar
     cancelar.onclick = function () {
@@ -21,10 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function mensagem_utilizador(mensagem) {
-    alert(mensagem)
-}
-
-function submeter_form_principal() {
-    document.querySelector('#form-principal-tpprod').submit();
+function muda_url (url) {
+    const preco_valor = document.querySelector('#preco-valor');
+    url = url.replace(-9999, preco_valor.value)
+    const modal_confirmacao = document.querySelector('#modal-confirmacao');
+    modal_confirmacao.style.display = "block";
+    let guardar_confirmacao = document.querySelector('#bt-guardar-confirmacao');
+    guardar_confirmacao.href = url;
 }

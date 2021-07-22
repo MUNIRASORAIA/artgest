@@ -18,6 +18,7 @@ urlpatterns = [
     path('info', views.info_page_view, name='info'),
     path('userpage', views.userpage_page_view, name='userpage'),
     path('produtos_registar', views.registar_produtos_page_view, name='produtos_registar'),
+    path('guardar_produto/<int:tipoprod_codigo>/<str:preco>', views.guardar_produto_view, name='guardar_produto'),
     path('produtos_listar', views.listar_produtos_page_view, name='produtos_listar'),
     path('produtos_editar/<int:tipoprod_codigo>', views.editar_produtos_page_view, name='produtos_editar'),
     path('produtos_eliminar/<int:tipoprod_codigo>', views.eliminar_produtos_page_view, name='produtos_eliminar'),

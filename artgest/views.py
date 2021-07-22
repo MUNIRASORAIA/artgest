@@ -1,14 +1,14 @@
 from django.contrib.auth import logout, login, authenticate
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.db import connection
 
 from artgest.forms import ProducaoForm, MateriaPrimaForm, TipoProdForm, GastosForm, FornecedorForm, InstrucoesForm, \
     ProdVendidoForm, GastosProdForm, MpProdForm, ArtesaoForm
 from artgest.models import Producao, MateriaPrima, Gastos, Fornecedor, Instrucoes, ProdVendido, TipoProd, GastosProd, \
-    Alerta, Artesao
+    Alerta, Artesao, MpProd
 
 
 # faz uma verificação de autenticação e redireciona para a página de utilizador (userpage.html) se autenticado
@@ -102,10 +102,7 @@ def registar_produtos_page_view(request):
         return HttpResponseRedirect(reverse('artgest:home'))
 
     tprod_form = TipoProdForm(request.POST, request.FILES)
-    print(tprod_form)
-    print(request.POST.get('imagem'))
-    print('request.FILES')
-    print(request.FILES)
+
     if tprod_form.is_valid():
 
         with connection.cursor() as cursor:
@@ -119,8 +116,10 @@ def registar_produtos_page_view(request):
         return redirect('artgest:produtos_visualizar', tipoprod_codigo)
 
     elif request.method == 'POST' and not tprod_form.is_valid():
-        messages.error(request, 'Não é possível avançar. Este tipo de produto já existe.', extra_tags='Atenção')
-        # print(messages.error)
+        messages.error(request,
+                       'Não é possível avançar. '
+                       'Verifique se o tipo de produto já existe ou se tem os campos corretamente preenchidos.',
+                       extra_tags='Atenção')
 
     context = {
         'titulo': 'Registar Tipo de Produto',
@@ -132,6 +131,30 @@ def registar_produtos_page_view(request):
     return render(request, 'artgest/produtos_registar.html', context)
 
 
+# finaliza o registo de tipos de produtos
+def guardar_produto_view(request, tipoprod_codigo, preco):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('artgest:home'))
+
+    tipoproduto = TipoProd.objects.get(codigo=tipoprod_codigo)
+
+    tipoproduto.preco = preco
+    tipoproduto.save()
+
+    tiposproduto = TipoProd.objects.all().order_by('-codigo')
+
+    colunas = ['Código', 'Nome', 'Custo de Produção', 'Lucro', 'Preço Unidade', 'Categoria']
+
+    context = {
+        'titulo': 'Tipos de Produto',
+        'tiposproduto': tiposproduto,
+        'colunas': colunas,
+        'artesao_codigo': request.user.codigo
+    }
+
+    return render(request, 'artgest/produtos_listar.html', context)
+
+
 # faz uma verificação de autenticação e redireciona para a página inícial (home.html) se não autenticado
 # se autenticado, cria forms de Producao, Matérias-Primas e Gastos, e redireciona para a página de visualizar produtos (produtos_visualizar.html)
 def visualizar_produtos_page_view(request, tipoprod_codigo):
@@ -139,42 +162,66 @@ def visualizar_produtos_page_view(request, tipoprod_codigo):
         return HttpResponseRedirect(reverse('artgest:home'))
 
     user_codigo = request.user.codigo
+    email = request.user.email
+    preco_ideal = None
+    mpprod_existe = False
+    gastosprod_existe = False
 
     try:
         producao = Producao.objects.get(artesao_codigo=user_codigo, tipo_prod_codigo=tipoprod_codigo)
         print('produto seleccionado')
+        preco_ideal = calcula_preco_ideal_view(email, producao.id)[0].get('PRECO_IDEAL')
     except:
         producao = None
 
     try:
-        mpprod = MateriaPrima.objects.get(producao_artesao_codigo=user_codigo, producao_tipo_prod_codigo=tipoprod_codigo).values()
-        print('materia prima seleccionado')
+        mpprod = MpProd.objects.filter(id=producao.id).values()
+        mpprod_existe = mpprod.exists()
+        print('materias primas seleccionadas')
     except:
         mpprod = None
 
     try:
-        gastosprod = GastosProd.objects.get(producao_artesao_codigo=user_codigo, producao_tipo_prod_codigo=tipoprod_codigo).values()
+        gastosprod = GastosProd.objects.filter(id=producao.id).values()
+        gastosprod_existe = gastosprod.exists()
         print('gasto seleccionado')
     except:
         gastosprod = None
 
     tipoproduto = TipoProd.objects.get(codigo=tipoprod_codigo)
-    tprod_form = TipoProdForm(request.POST or None, instance=tipoproduto)
+    tprod_form = TipoProdForm(instance=tipoproduto)
     producao_form = ProducaoForm(request.POST or None)
     mpprod_form = MpProdForm(request.POST or None)
     gastosprod_form = GastosProdForm(request.POST or None)
 
-    print(tprod_form)
-    print(request.POST)
-    print(request.FILES)
+    if 'inserir-producao-bd' in request.POST and producao_form.is_valid():
+        producao_form.save()
+        producao_form = ProducaoForm()
+        messages.success(request, 'A Produção foi acrescentada ao Tipo de Produto.', extra_tags='Sucesso')
+        return HttpResponseRedirect(reverse_lazy('artgest:produtos_visualizar', args=[tipoprod_codigo]))
+
+    if 'inserir-mpprod-bd' in request.POST:
+        mpprod_form.save()
+        mpprod_form = MpProdForm()
+        messages.success(request, 'A matéria-prima foi acrescentada ao Tipo de Produto.', extra_tags='Sucesso')
+        return HttpResponseRedirect(reverse_lazy('artgest:produtos_visualizar', args=[tipoprod_codigo]))
+
+    if 'inserir-gasto-bd' in request.POST:
+        gastosprod_form.save()
+        gastosprod_form = GastosProdForm()
+        messages.success(request, 'O Gasto foi acrescentado ao Tipo de Produto.', extra_tags='Sucesso')
+        return HttpResponseRedirect(reverse_lazy('artgest:produtos_visualizar', args=[tipoprod_codigo]))
 
     context = {
         'titulo': 'Finalizar Registo do Tipo de Produto',
         'tipoproduto': tipoproduto,
         'tprod_form': tprod_form,
         'producao': producao,
+        'preco_ideal': preco_ideal,
         'mpprod': mpprod,
+        'mpprod_existe': mpprod_existe,
         'gastosprod': gastosprod,
+        'gastosprod_existe': gastosprod_existe,
         'producao_form': producao_form,
         'mpprod_form': mpprod_form,
         'gastosprod_form': gastosprod_form,
@@ -182,36 +229,20 @@ def visualizar_produtos_page_view(request, tipoprod_codigo):
         'artesao_codigo': request.user.codigo
     }
 
-    if 'inserir-producao-bd' in request.POST and producao_form.is_valid():
-        producao_form.save()
-        messages.success(request, 'A Produção foi acrescentada ao Tipo de Produto.', extra_tags='Sucesso')
-        # return render(request, 'artgest/produtos_visualizar.html', context)
-
-    if 'inserir-mpprod-bd' in request.POST and mpprod_form.is_valid():
-        mpprod_form.save()
-        messages.success(request, 'A matéria-prima foi acrescentada ao Tipo de Produto.', extra_tags='Sucesso')
-        # return render(request, 'artgest/produtos_visualizar.html', context)
-
-    if 'inserir-gasto-bd' in request.POST and gastosprod_form.is_valid():
-        gastosprod_form.save()
-        messages.success(request, 'O Gasto foi acrescentado ao Tipo de Produto.', extra_tags='Sucesso')
-        # return render(request, 'artgest/produtos_visualizar.html', context)
-
-    if tprod_form.is_valid():
-        tprod_form.save()
-        messages.success(request, 'O Tipo de Produto foi registado com êxito!.', extra_tags='Sucesso')
-        return HttpResponseRedirect(reverse('artgest:produtos_listar'))
-
     return render(request, 'artgest/produtos_visualizar.html', context)
 
 
-# def calcula_preco_ideal(email):
-#     with connection.cursor() as cursor:
-#         cursor.callfunc('utils_pkg.preco_ideal_fnc', [email, 120, 6, 0.5, {'codigo': 1015, 'quantidade': 10, 'unid_medida_codigo': 1012}, 0.1])
-#         preco_ideal = cursor.fetchone()
-#         cursor.close()
-#
-#     return preco_ideal
+#  calcula o preço ideal de um tipo de produto
+def calcula_preco_ideal_view(email, producao_id):
+    with connection.cursor() as cursor:
+        try:
+            cursor.execute('SELECT UTILS_PKG.PRECO_IDEAL_FNC(%s, %s) AS PRECO_IDEAL FROM DUAL', [email, producao_id])
+            preco_ideal = dictfetchall(cursor)
+        except:
+            print('Sem resultados')
+        cursor.close()
+
+    return preco_ideal
 
 
 # faz uma verificação de autenticação e redireciona para a página inícial (home.html) se não autenticado
@@ -222,7 +253,7 @@ def listar_produtos_page_view(request):
 
     tiposproduto = TipoProd.objects.all().order_by('-codigo')
 
-    colunas = ['Código', 'Nome', 'Custo de Produção', 'Lucro', 'Preço Unidade', 'Categoria']
+    colunas = ['Código', 'Nome', 'Lucro', 'Preço Unidade', 'Categoria']
 
     context = {
         'titulo': 'Tipos de Produto',
@@ -340,7 +371,8 @@ def listar_materiasprimas_page_view(request):
     context = {
         'titulo': 'Materias-Primas',
         'materias_primas': materias_primas,
-        'colunas': colunas
+        'colunas': colunas,
+        'artesao_codigo': request.user.codigo
     }
 
     return render(request, 'artgest/materiasprimas_listar.html', context)
@@ -765,6 +797,7 @@ def relatorio_quantidades_mes(email):
         cursor.close()
 
     return vendas
+
 
 # Acede a uma função da base de dados e retorna os produtos vendidos nos últimos 30 dias
 def relatorio_vendas_mes(email):

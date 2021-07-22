@@ -136,8 +136,6 @@ class GastosProdForm(ModelForm):
             'codigo': forms.HiddenInput(),
             'gastos_codigo': forms.Select(attrs={'class': 'form-control'}),
             'percentagem': forms.NumberInput(attrs={'class': 'form-control'}),
-            'producao_artesao_codigo': forms.HiddenInput(),
-            'producao_tipo_prod_codigo': forms.HiddenInput(),
         }
 
         labels = {

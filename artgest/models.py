@@ -3,7 +3,7 @@
 #   * Rearrange models' order
 #   * Make sure each model has one field with primary_key=True
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
+#   * Remove `managed = True` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -20,7 +20,7 @@ class Alerta(models.Model):
     materia_prima_codigo = models.ForeignKey('MateriaPrima', models.DO_NOTHING, db_column='materia_prima_codigo')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'alerta'
 
     def __str__(self):
@@ -42,7 +42,7 @@ class Artesao(AbstractUser):
     date_joined = models.DateTimeField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'artesao'
         unique_together = (('email', 'username'),)
 
@@ -56,7 +56,7 @@ class Categoria(models.Model):
     nome = models.CharField(max_length=20)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'categoria'
 
     def __str__(self):
@@ -76,7 +76,7 @@ class Fornecedor(models.Model):
     telefone = models.BigIntegerField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'fornecedor'
 
     def __str__(self):
@@ -89,7 +89,7 @@ class Fornecimento(models.Model):
     materia_prima_codigo = models.OneToOneField('MateriaPrima', models.DO_NOTHING, db_column='materia_prima_codigo', primary_key=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'fornecimento'
         unique_together = (('materia_prima_codigo', 'fornecedor_nipc'),)
 
@@ -105,7 +105,7 @@ class Gastos(models.Model):
     artesao_codigo = models.ForeignKey(Artesao, models.DO_NOTHING, db_column='artesao_codigo')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'gastos'
         unique_together = (('nome', 'artesao_codigo'),)
 
@@ -116,13 +116,15 @@ class Gastos(models.Model):
 # Classe tabela Gastos de Produção
 class GastosProd(models.Model):
     codigo = models.IntegerField(primary_key=True)
-    gastos_codigo = models.ForeignKey(Gastos, models.DO_NOTHING, db_column='gastos_codigo')
+    # gastos_codigo = models.ForeignKey('Gastos', models.DO_NOTHING)
+    gastos_codigo = models.ForeignKey('Gastos', on_delete=models.CASCADE, null=True)
     percentagem = models.FloatField()
-    producao_artesao_codigo = models.ForeignKey('Producao', models.DO_NOTHING, db_column='producao_artesao_codigo', related_name='gastosprod_artesao_codigo')
-    producao_tipo_prod_codigo = models.ForeignKey('Producao', models.DO_NOTHING, db_column='producao_tipo_prod_codigo', related_name='gastosprod_tipo_prod_codigo')
+    id = models.ForeignKey('Producao', on_delete=models.CASCADE, null=True, db_column='id')
+    # producao_artesao_codigo = models.ForeignKey('Producao', models.DO_NOTHING, db_column='producao_artesao_codigo', related_name='gastosprod_artesao_codigo')
+    # producao_tipo_prod_codigo = models.ForeignKey('Producao', models.DO_NOTHING, db_column='producao_tipo_prod_codigo', related_name='gastosprod_tipo_prod_codigo')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'gastos_prod'
 
     def __str__(self):
@@ -135,7 +137,7 @@ class InstProd(models.Model):
     instrucoes_codigo = models.ForeignKey('Instrucoes', models.DO_NOTHING, db_column='instrucoes_codigo')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'inst_prod'
         unique_together = (('tipo_prod_codigo', 'instrucoes_codigo'),)
 
@@ -151,7 +153,7 @@ class Instrucoes(models.Model):
     imagem = models.ImageField(upload_to='images/instrucoes/')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'instrucoes'
 
     def __str__(self):
@@ -171,7 +173,7 @@ class MateriaPrima(models.Model):
     artesao_codigo = models.ForeignKey(Artesao, models.DO_NOTHING, db_column='artesao_codigo')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'materia_prima'
         unique_together = (('nome', 'artesao_codigo'),)
 
@@ -182,14 +184,15 @@ class MateriaPrima(models.Model):
 # Classe tabela Matéria-prima de produção
 class MpProd(models.Model):
     codigo = models.IntegerField(primary_key=True)
-    materia_prima_codigo = models.ForeignKey(MateriaPrima, models.DO_NOTHING, db_column='materia_prima_codigo')
+    materia_prima_codigo = models.ForeignKey(MateriaPrima, models.DO_NOTHING, db_column='materia_prima_codigo', null=True)
     quantidade = models.FloatField()
-    unid_medida_codigo = models.ForeignKey('UnidMedida', models.DO_NOTHING, db_column='unid_medida_codigo')
-    producao_artesao_codigo = models.ForeignKey('Producao', models.DO_NOTHING, db_column='artesao_codigo', related_name='producao_artesao_codigo')
-    producao_tipo_prod_codigo = models.ForeignKey('Producao', models.DO_NOTHING, db_column='producao_tipo_prod_codigo', related_name='producao_tipo_prod_codigo')
+    unid_medida_codigo = models.ForeignKey('UnidMedida', models.DO_NOTHING, db_column='unid_medida_codigo', null=True)
+    id = models.ForeignKey('Producao', on_delete=models.CASCADE, null=True, db_column='id')
+    # producao_artesao_codigo = models.ForeignKey('Producao', models.DO_NOTHING, db_column='artesao_codigo', related_name='producao_artesao_codigo')
+    # producao_tipo_prod_codigo = models.ForeignKey('Producao', models.DO_NOTHING, db_column='producao_tipo_prod_codigo', related_name='producao_tipo_prod_codigo')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'mp_prod'
 
     def __str__(self):
@@ -205,7 +208,7 @@ class ProdVendido(models.Model):
     produto_stock_tipo_prod_codigo = models.ForeignKey('ProdutoStock', models.DO_NOTHING, db_column='produto_stock_tipo_prod_codigo')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'prod_vendido'
 
     def __str__(self):
@@ -214,18 +217,21 @@ class ProdVendido(models.Model):
 
 # Classe tabela Produção
 class Producao(models.Model):
-    artesao_codigo = models.ForeignKey(Artesao, models.DO_NOTHING, db_column='artesao_codigo')
-    tipo_prod_codigo = models.OneToOneField('TipoProd', models.DO_NOTHING, db_column='tipo_prod_codigo', primary_key=True)
+    # artesao_codigo = models.ForeignKey(Artesao, models.DO_NOTHING, db_column='artesao_codigo')
+    # tipo_prod_codigo = models.OneToOneField('TipoProd', models.DO_NOTHING, db_column='tipo_prod_codigo')
+    id = models.AutoField(primary_key=True, null=True, db_column='id')
+    artesao_codigo = models.ForeignKey('Artesao', on_delete=models.CASCADE, null=True)
+    tipo_prod_codigo = models.ForeignKey('TipoProd', on_delete=models.CASCADE, null=True)
     tempo_producao = models.IntegerField()
     custo_hora_producao = models.DecimalField(max_digits=6, decimal_places=2)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'producao'
-        unique_together = (('artesao_codigo', 'tipo_prod_codigo'),)
+        # unique_together = (('artesao_codigo', 'tipo_prod_codigo'),)
 
     def __str__(self):
-        return f'{self.tipo_prod_codigo}'
+        return f'Prdução (ID: {self.id})'
 
 
 # Classe tabela Produto em Stock
@@ -235,7 +241,7 @@ class ProdutoStock(models.Model):
     preco = models.DecimalField(max_digits=6, decimal_places=2)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'produto_stock'
 
     def __str__(self):
@@ -253,7 +259,7 @@ class TipoProd(models.Model):
     categoria_codigo = models.ForeignKey(Categoria, models.DO_NOTHING, db_column='categoria_codigo')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'tipo_prod'
 
     def __str__(self):
@@ -267,7 +273,7 @@ class UnidMedida(models.Model):
     abreviatura = models.CharField(max_length=4, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'unid_medida'
 
     def __str__(self):

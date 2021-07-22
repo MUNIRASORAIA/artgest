@@ -23,13 +23,15 @@
     <form method="POST" action="" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="hidden" name="codigo" value=0>
-        <p>{{ tprod_form.nome.label }}{{ tprod_form.nome }}</p>
-        <p>{{ tprod_form.categoria_codigo.label }}{{ tprod_form.categoria_codigo }}</p>
-        <div class="clss-obrigatorio">{{ tprod_form.imagem.label }}</div>
+        <input type="hidden" name="preco" value=0>
+        <p class="clss-obrigatorio">{{ tprod_form.nome.label }}<span>&#42;</span>{{ tprod_form.nome }}</p>
+        <p class="clss-obrigatorio">{{ tprod_form.categoria_codigo.label }}<span>&#42;</span>{{ tprod_form.categoria_codigo }}</p>
+        <div class="clss-obrigatorio">{{ tprod_form.imagem.label }}<span>&#42;</span></div>
         <input type="file" name="imagem" }}>
         <br><br>
-        <p>{{ tprod_form.lucro.label }}{{ tprod_form.lucro }}</p>
-        <p>{{ tprod_form.preco.label }}{{ tprod_form.preco }}</p>
+        <p class="clss-obrigatorio">{{ tprod_form.lucro.label }}<span>&#42;</span>{{ tprod_form.lucro }}</p>
+        <br>
+        <span class="clss-obrigatorio-msg">&#42; Campo de preenchimento obrigatório</span></p>
         <p class="clss-nota">Nota: Após guardar o Tipo de Produto poderá adicionar a Produção, as Matérias-Primas e os Gastos.</p>
         <button type="button" id="bt-guardar" class="btn btn-primary float-right">Guardar</button>
         <a href="{% url 'artgest:produtos_registar' %}" role="button" class="btn btn-secondary float-right mr-1">Limpar</a>

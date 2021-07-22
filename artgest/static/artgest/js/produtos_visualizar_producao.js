@@ -7,6 +7,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let cancelar_prod = document.querySelector('#bt-cancelar-prod');
     let producao_conteudo = document.querySelector('#producao-conteudo');
 
+
+
+
+
+
     // abrir o modal para criar produção ao clicar em adicionar
     adicionar_prod.onclick = function () {
         modal_prod.style.display = "block";

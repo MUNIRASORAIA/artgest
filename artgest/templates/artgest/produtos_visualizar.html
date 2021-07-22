@@ -1,5 +1,7 @@
 {% extends 'artgest/base.html' %}
 
+{% load humanize %}
+
 {% load static %}
 
 {% block scripts %}
@@ -23,10 +25,11 @@
 
 {% block main %}
     <h1>{{ titulo }}</h1>
+    <p > <strong>Código:</strong> <input id="tipoprod-codigo" type="number" name=codigo value={{ tipoproduto.codigo }} disabled></p>
     <p> <strong>Nome:</strong> {{ tipoproduto.nome }}</p>
     <p> <strong>Categoria:</strong> {{ tipoproduto.categoria_codigo }}</p>
     <p> <strong>Imagem:</strong></p>
-    <img style="width: 100px" src="{% static 'artgest/uploads/images/produtos/teste.png' %}"/>
+    <img style="width: 100px" src=/uploads/{{ tipoproduto.imagem }} />
 
     <br>
     <br>
@@ -39,21 +42,42 @@
         <p style="display: none">{{ tprod_form.imagem }}></p>
         <p style="display: none">{{ tprod_form.lucro }}></p>
         <p style="display: none">{{ tprod_form.categoria_codigo }}</p>
-        <p> <strong>Preço: </strong><input name=preco value={{ tipoproduto.preco }}></p>
     </form>
     <hr>
     <h6>Produção</h6>
     <a id="bt-adicionar-producao" href="#">+ Produção</a>
-    <a id="producao-conteudo" href="#">{{ producao.tipo_prod_codigo_id }}</a>
+    <div id="producao-conteudo">{{ producao.id }}</div>
     <hr>
-    <a id="bt-adicionar-mprod" href="#">+ Matéria-Prima Produção</a>
-    <div id="mprod-conteudo">{{ producao.materia_prima_codigo }}</div>
+    {% if producao.id is None %}
+        + Matéria-Prima Produção <span class="clss-nota">(Adicione primeiro a produção)</span>
+    {% else %}
+        <a id="bt-adicionar-mprod" href="#">+ Matéria-Prima Produção</a>
+        {% for mp in mpprod %}
+            <div id="mprod-conteudo">Código: {{ mp.codigo }}</div>
+        {% endfor %}
+    {% endif %}
     <hr>
-    <a id="bt-adicionar-gasto-prod" href="#">+ Gasto Produção</a>
-    <div id="gastos-prod">{{ gastos_prod.gastos_codigo }}</div>
+    {% if producao.id is None %}
+        + Gastos Produção <span class="clss-nota">(Adicione primeiro a produção)</span>
+    {% else %}
+        <a id="bt-adicionar-gasto-prod" href="#">+ Gasto Produção</a>
+        {% for gp in gastosprod %}
+            <div id="gastos-prod">Código: {{ gp.codigo }}</div>
+        {% endfor %}
+    {% endif %}
+    <hr>
+    <p><strong>Sugestão de preço ideal: </strong>
+        {% if producao.id is None or mpprod_existe is False or gastosprod_existe is False%}
+            <span class="clss-nota">O preço ideal só é gerada após preenchimento da Produção, das Matérias-Primas e Gastos.</span>
+        {% else %}
+            {{ preco_ideal|intcomma }}
+        {% endif %}
+    </p>
+    <p> <strong>Preço: </strong><input id="preco-valor" type="number" step="0.1" name=preco value={{ tipoproduto.preco }}></p>
     <hr>
     <br>
-    <button type="button" id="bt-guardar" class="btn btn-primary float-right">Guardar</button>
+    <button type="button" onclick='muda_url("{% url 'artgest:guardar_produto' tipoproduto.codigo -9999 %}")'
+            class="btn btn-primary float-right">Guardar</button>
     <a href="{% url 'artgest:produtos_listar' %}" role="button" class="btn btn-secondary float-right mr-1">Voltar</a>
 
 
@@ -64,6 +88,7 @@
                 <hr>
                 <form method="POST" action="">
                     {% csrf_token %}
+                    <input type="hidden" name="id" value=1>
                     <input type="hidden" name="artesao_codigo" value={{ user_codigo }}>
                     <input type="hidden" name="tipo_prod_codigo" value={{ tipoproduto.codigo }}>
                     <p>{{ producao_form.tempo_producao.label }}{{ producao_form.tempo_producao }}</p>
@@ -77,52 +102,48 @@
         </div>
      </div>
 
-         <div id="modal-mprod" class="clss-modal-fundo-mprod">
-            <div class="clss-modal-mprod modal-fade">
-                <div class="clss-modal-mprod-conteudo">
-                    <h4><strong>ADICIONAR MATÉRIA-PRIMA DA PRODUÇÃO</strong></h4>
+     <div id="modal-mprod" class="clss-modal-fundo-mprod">
+        <div class="clss-modal-mprod modal-fade">
+            <div class="clss-modal-mprod-conteudo">
+                <h4><strong>ADICIONAR MATÉRIA-PRIMA DA PRODUÇÃO</strong></h4>
+                <hr>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name=codigo value=1>
+                    <input type="hidden" name=id value={{ producao.id }}>
+                    <p>{{ mpprod_form.materia_prima_codigo.label }}{{ mpprod_form.materia_prima_codigo }}</p>
+                    <p>{{ mpprod_form.quantidade.label }}{{ mpprod_form.quantidade }}</p>
+                    <p>{{ mpprod_form.unid_medida_codigo.label }}{{ mpprod_form.unid_medida_codigo }}</p>
                     <hr>
-                    <form method="POST" action="">
-                        {% csrf_token %}
-                        <input type="hidden" name=mpprod_form.codigo value=1>
-                        <input type="hidden" name=mpprod_form.producao_artesao_codigo value={{ user_codigo }}>
-                        <input type="hidden" name=mpprod_form.producao_tipo_prod_codigo value={{ tprod.codigo }}>
-                        <p>{{ mpprod_form.materia_prima_codigo.label }}{{ mpprod_form.materia_prima_codigo }}</p>
-                        <p>{{ mpprod_form.quantidade.label }}{{ mpprod_form.quantidade }}</p>
-                        <p>{{ mpprod_form.unid_medida_codigo.label }}{{ mpprod_form.unid_medida_codigo }}</p>
-                        <hr>
-                        <div class="clss-modal-botoes">
-                            <button type="button" id="bt-cancelar-mprod" class="mb-5 btn btn-secondary btn-sm">Cancelar</button>
-                            <button  {# type="submit" #} onclick="mensagem_utilizador('Esta funcionalidade encontra-se em construção.')"
-                                                        name="inserir-mpprod-bd" class="mb-5 btn btn-primary btn-sm">Inserir</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="clss-modal-botoes">
+                        <button type="button" id="bt-cancelar-mprod" class="mb-5 btn btn-secondary btn-sm">Cancelar</button>
+                        <button  type="submit" name="inserir-mpprod-bd" class="mb-5 btn btn-primary btn-sm">Inserir</button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
 
-         <div id="modal-gasto" class="clss-modal-fundo-gasto">
-            <div class="clss-modal-gasto modal-fade">
-                <div class="clss-modal-gasto-conteudo">
-                    <h4><strong>ADICIONAR GASTO</strong></h4>
+     <div id="modal-gasto" class="clss-modal-fundo-gasto">
+        <div class="clss-modal-gasto modal-fade">
+            <div class="clss-modal-gasto-conteudo">
+                <h4><strong>ADICIONAR GASTO</strong></h4>
+                <hr>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name=codigo value=1>
+                    <input type="hidden" name=id value={{ producao.id }}>
+                    {{ gastosprod_form.gastos_codigo.label }}{{ gastosprod_form.gastos_codigo }}
+                    {{ gastosprod_form.percentagem.label }}{{ gastosprod_form.percentagem }}
                     <hr>
-                    <form method="POST" action="">
-                        {% csrf_token %}
-                        <input type="hidden" name=gastosprod_form.codigo value=1>
-                        <input type="hidden" name=gastosprod_form.producao_artesao_codigo value={{ user_codigo }}>
-                        <input type="hidden" name=gastosprod_form.producao_tipo_prod_codigo value={{ tprod.codigo }}>
-                        {{ gastosprod_form.gastos_codigo.label }}{{ gastosprod_form.gastos_codigo }}
-                        {{ gastosprod_form.percentagem.label }}{{ gastosprod_form.percentagem }}
-                        <hr>
-                        <div class="clss-modal-botoes">
-                            <button type="button" id="bt-cancelar-gasto-prod" class="mb-5 btn btn-secondary btn-sm">Cancelar</button>
-                            <button {# type="submit" #} onclick="mensagem_utilizador('Esta funcionalidade encontra-se em construção.')"
-                                                        name="inserir-gasto-bd" class="mb-5 btn btn-primary btn-sm">Inserir</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="clss-modal-botoes">
+                        <button type="button" id="bt-cancelar-gasto-prod" class="mb-5 btn btn-secondary btn-sm">Cancelar</button>
+                        <button type="submit" name="inserir-gasto-bd" class="mb-5 btn btn-primary btn-sm">Inserir</button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
 
     <div id="modal-confirmacao" class="clss-modal-fundo">
         <div class="clss-modal-confirmacao modal-fade">
@@ -133,7 +154,7 @@
                 <hr>
                 <div class="clss-modal-botoes">
                     <button type="button" id="bt-cancelar" class="mb-5 btn btn-secondary btn-sm mr-1">Cancelar</button>
-                    <button onclick="submeter_form_principal()" class="mb-5 btn btn-primary btn-sm">Sim, guardar</button>
+                    <a id="bt-guardar-confirmacao" href="#" class="mb-5 btn btn-primary btn-sm">Sim, guardar</a>
                 </div>
             </div>
         </div>
